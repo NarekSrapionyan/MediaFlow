@@ -1,6 +1,8 @@
 ﻿namespace MediaFlowProject.Models;
 
-public class MediaOperationType
-{
-    
+public enum MediaOperationType
+{   
+    Convert,
+    ExtractAudio,
+    Compress
 }

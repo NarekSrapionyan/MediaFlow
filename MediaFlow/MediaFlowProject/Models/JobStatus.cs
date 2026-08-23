@@ -1,6 +1,10 @@
 ﻿namespace MediaFlowProject.Models;
 
-public class JobStatus
+public enum JobStatus
 {
-    
+    Queued,
+    Running,
+    Completed,
+    Failed,
+    Canceled
 }
