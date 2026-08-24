@@ -1,5 +1,6 @@
 ﻿using System.Collections.Concurrent;
 using MediaFlowProject.Models;
+using MediaFlowProject.Workers;
 
 namespace MediaFlowProject.Jobs;
 
@@ -64,13 +65,17 @@ public class JobManager
         _jobQueue.CompleteAdding();
         foreach (var worker in _workers)
         {
-            worker.Join();
+            if (worker.IsAlive)
+            {
+                worker.Join();
+            }
         }
     }
 
     private void WorkerLoop()
     {
-        // TODO:
+        var worker = new JobWorker(_jobQueue, _tokenSource.Token);
+        worker.Run();
     }
     
     
