@@ -1,6 +1,7 @@
-﻿namespace MediaFlowProject.Processing;
+﻿using MediaFlowProject.Models;
+namespace MediaFlowProject.Processing;
 
-public class IMediaProcessor
+public interface IMediaProcessor
 {
-    
+    string GetFfmpegArguments(MediaJob job);
 }
