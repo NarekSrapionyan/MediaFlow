@@ -1,6 +1,11 @@
-﻿namespace MediaFlowProject.Processing;
+﻿using MediaFlowProject.Models;
 
-public class AudioExtractor
+namespace MediaFlowProject.Processing;
+
+public class AudioExtractor : IMediaProcessor
 {
-    
+    public string GetFfmpegArguments(MediaJob job)
+    {
+        return $"-y -i \"{job.InputPath}\" -vn {job.Options} \"{job.OutputPath}\"";
+    }
 }
