@@ -23,7 +23,6 @@ class Program
             return;
         }
 
-
         int workerCount = ReadWorkerCount();
 
         Console.WriteLine();
@@ -32,6 +31,17 @@ class Program
 
         var jobManager = new JobManager(workerCount);
 
+        Console.CancelKeyPress += (sender, e) =>
+        {
+            // Don't let Ctrl+C immediately terminate the application.
+            e.Cancel = true;
+
+            Console.WriteLine("\nCtrl+C detected.");
+            Console.WriteLine("Stopping all workers and FFmpeg processes...");
+
+            jobManager.StopWorkers();
+        };
+        
         jobManager.StartWorkers();
 
         var menu = new ConsoleMenu(jobManager);
@@ -49,7 +59,7 @@ class Program
     {
         while (true)
         {
-            Console.Write("Number of workers [5]: ");
+            Console.Write($"Number of workers [{AppSettings.MinWorkerCount} - {AppSettings.MaxWorkerCount}]: ");
 
             string input = Console.ReadLine() ?? string.Empty;
 
@@ -62,7 +72,7 @@ class Program
             // Not a number
             if (!int.TryParse(input, out int workerCount))
             {
-                Console.WriteLine("Please enter a number from 1 to 5.");
+                Console.WriteLine($"Please enter a number from {AppSettings.MinWorkerCount} to {AppSettings.MaxWorkerCount}.");
                 continue;
             }
 

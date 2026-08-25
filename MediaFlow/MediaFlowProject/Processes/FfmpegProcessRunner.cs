@@ -40,7 +40,10 @@ public class FfmpegProcessRunner
             {
                 if (cancellationToken.IsCancellationRequested)
                 {
-                    process.Kill();
+                    if (!process.HasExited)
+                    {
+                        process.Kill();
+                    }
                     job.UpdateStatus(JobStatus.Canceled);
                     return;
                 }

@@ -33,7 +33,7 @@ public class ConsoleMenu
                 Console.WriteLine();
                 
                 Console.WriteLine(
-                    $"Workers: {_jobManager.WorkerCount} / {AppSettings.MaxWorkerCount}"
+                    $"Workers: {_jobManager.WorkerCount}"
                 );
                 Console.WriteLine($"Active:  {active}");
                 Console.WriteLine($"Queued:  {queued}");
@@ -89,10 +89,9 @@ public class ConsoleMenu
 
         private void ListJobsFlow()
         {
-            Console.Clear();
-
             while (true)
             {
+                Console.Clear();               // <-- clear every frame, not just once
                 Console.SetCursorPosition(0, 0);
 
                 Console.WriteLine("=== All Jobs ===");
@@ -108,14 +107,8 @@ public class ConsoleMenu
                 {
                     foreach (var job in jobs)
                     {
-                        Console.WriteLine(
-                            $"[{job.Id}] {job.OperationType,-12} | {job.Status,-10}"
-                        );
-
-                        Console.WriteLine(
-                            $"    {CreateProgressBar(job.Progress)}"
-                        );
-
+                        Console.WriteLine($"[{job.Id}] {job.OperationType,-12} | {job.Status,-10}");
+                        Console.WriteLine($"    {CreateProgressBar(job.Progress)}");
                         Console.WriteLine();
                     }
                 }
@@ -125,7 +118,6 @@ public class ConsoleMenu
                 if (Console.KeyAvailable)
                 {
                     var key = Console.ReadKey(true);
-
                     if (key.Key == ConsoleKey.Enter)
                     {
                         break;
