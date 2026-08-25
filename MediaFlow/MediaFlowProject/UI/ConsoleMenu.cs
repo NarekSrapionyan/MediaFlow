@@ -131,16 +131,14 @@ public class ConsoleMenu
         private void CancelJobFlow()
         {
             Console.Clear();
-
             int id = ReadInteger("Enter Job ID to cancel: ");
-
             var job = _jobManager.GetJobs().FirstOrDefault(j => j.Id == id);
 
             if (job != null)
             {
                 if (job.Status == JobStatus.Queued || job.Status == JobStatus.Running)
                 {
-                    job.UpdateStatus(JobStatus.Canceled);
+                    job.Cancel();
                     Console.WriteLine($"Job [{id}] has been canceled.");
                 }
                 else
@@ -160,13 +158,15 @@ public class ConsoleMenu
         private void CancelAllFlow()
         {
             Console.Clear();
-            var jobs = _jobManager.GetJobs().Where(j => j.Status == JobStatus.Queued || j.Status == JobStatus.Running).ToList();
-            
+            var jobs = _jobManager.GetJobs()
+                .Where(j => j.Status == JobStatus.Queued || j.Status == JobStatus.Running)
+                .ToList();
+
             foreach (var job in jobs)
             {
-                job.UpdateStatus(JobStatus.Canceled);
+                job.Cancel();
             }
-            
+
             Console.WriteLine($"Canceled {jobs.Count} active/queued jobs.");
             Console.WriteLine("\nPress any key to return...");
             Console.ReadKey(true);

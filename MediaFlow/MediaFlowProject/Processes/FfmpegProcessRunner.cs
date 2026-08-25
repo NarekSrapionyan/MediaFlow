@@ -42,9 +42,9 @@ public class FfmpegProcessRunner
                 {
                     if (!process.HasExited)
                     {
-                        process.Kill();
+                        process.Kill(entireProcessTree: true); // ffmpeg can spawn helpers; kill them too
                     }
-                    job.UpdateStatus(JobStatus.Canceled);
+                    job.UpdateStatus(JobStatus.Canceled); // harmless now, status already Canceled
                     return;
                 }
             }

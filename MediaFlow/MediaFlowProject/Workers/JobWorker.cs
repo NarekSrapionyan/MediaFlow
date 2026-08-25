@@ -45,9 +45,13 @@ public class JobWorker
 
             var processor = MediaProcessorResolver.Resolve(job.OperationType);
             string arguments = processor.GetFfmpegArguments(job);
-                
+
+            // link the global shutdown token with this job's own cancel token
+            using var linked = CancellationTokenSource.CreateLinkedTokenSource(
+                _cancellationToken, job.CancellationToken);
+
             var runner = new FfmpegProcessRunner();
-            runner.Run(job, arguments, _cancellationToken);
+            runner.Run(job, arguments, linked.Token);
         }
         catch (Exception ex)
         {
