@@ -19,9 +19,11 @@ public class JobManager
     
     public JobManager(int workerCount)
     {
-        _workerCount = Math.Clamp(workerCount, AppSettings.MinWorkerCount, AppSettings.MaxWorkerCount);        _jobQueue = new BlockingCollection<MediaJob>();
+        _workerCount = workerCount;
+
+        _jobQueue = new BlockingCollection<MediaJob>();
         _alljobs = new List<MediaJob>();
-        
+
         _workers = new List<Thread>();
         _tokenSource = new CancellationTokenSource();
     }
