@@ -43,8 +43,8 @@ public class JobWorker
         {
             job.UpdateStatus(JobStatus.Running);
 
-            var processor = MediaProcessorResolver.Resolve(job.OperationType);
-            string arguments = processor.GetFfmpegArguments(job);
+            var processType = MediaProcessorResolver.Resolve(job.OperationType);
+            string arguments = processType.GetFfmpegArguments(job);
 
             // link the global shutdown token with this job's own cancel token
             using var linked = CancellationTokenSource.CreateLinkedTokenSource(

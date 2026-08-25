@@ -2,7 +2,7 @@
 
 namespace MediaFlowProject.Processing;
 
-public class AudioExtractor : IMediaProcessor
+public class AudioExtract : IMediaProcess
 {
     public string GetFfmpegArguments(MediaJob job)
     {

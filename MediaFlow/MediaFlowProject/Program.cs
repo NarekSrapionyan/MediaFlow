@@ -46,9 +46,7 @@ class Program
 
             Console.WriteLine("\nCtrl+C detected.");
             Console.WriteLine("Stopping all workers and FFmpeg processes...");
-
-            // Run StopWorkers with a timeout so a stuck ffmpeg process
-            // (or a hung Join) can't prevent the app from exiting.
+            
             var stopTask = Task.Run(() => jobManager.StopWorkers());
 
             if (!stopTask.Wait(TimeSpan.FromSeconds(5)))
@@ -84,7 +82,7 @@ class Program
 
             string input = Console.ReadLine() ?? string.Empty;
 
-            // Enter → use default
+            // Enter -> use default
             if (string.IsNullOrWhiteSpace(input))
             {
                 return AppSettings.MaxWorkerCount;

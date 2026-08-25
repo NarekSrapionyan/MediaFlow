@@ -4,18 +4,18 @@ namespace MediaFlowProject.Processing;
 
 public class MediaProcessorResolver
 {
-    public static IMediaProcessor Resolve(MediaOperationType operationType)
+    public static IMediaProcess Resolve(MediaOperationType operationType)
     {
         switch (operationType)
         {
             case MediaOperationType.Convert:
-                return new MediaConverter();
+                return new MediaConvert();
                 
             case MediaOperationType.ExtractAudio:
-                return new AudioExtractor();
+                return new AudioExtract();
                 
             case MediaOperationType.Compress:
-                return new MediaCompressor();
+                return new MediaCompress();
                 
             default:
                 throw new NotSupportedException($"The operation type {operationType} is not supported.");

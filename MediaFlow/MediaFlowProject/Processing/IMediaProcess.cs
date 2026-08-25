@@ -1,7 +1,7 @@
 ﻿using MediaFlowProject.Models;
 namespace MediaFlowProject.Processing;
 
-public interface IMediaProcessor
+public interface IMediaProcess
 {
     string GetFfmpegArguments(MediaJob job);
 }
