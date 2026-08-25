@@ -32,7 +32,9 @@ public class ConsoleMenu
                 Console.WriteLine(new string('=', 45));
                 Console.WriteLine();
                 
-                Console.WriteLine($"Workers: {Math.Min(active, AppSettings.MaxWorkerCount)} / {AppSettings.MaxWorkerCount}");
+                Console.WriteLine(
+                    $"Workers: {_jobManager.WorkerCount} / {AppSettings.MaxWorkerCount}"
+                );
                 Console.WriteLine($"Active:  {active}");
                 Console.WriteLine($"Queued:  {queued}");
                 Console.WriteLine($"Done:    {done}");

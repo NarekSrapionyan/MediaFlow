@@ -1,4 +1,4 @@
-namespace MediaFlowProject.Configuration;
+namespace MediaFlowProject.Processes;
 
 using System.Diagnostics;
 

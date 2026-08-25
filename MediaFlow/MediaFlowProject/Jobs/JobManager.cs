@@ -12,6 +12,7 @@ public class JobManager
     private readonly object _listLock = new object();
 
     private readonly int _workerCount;
+    public int WorkerCount => _workerCount;
     private readonly List<Thread> _workers;
 
     private readonly CancellationTokenSource _tokenSource;
