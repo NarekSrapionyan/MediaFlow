@@ -1,6 +1,7 @@
 ﻿using MediaFlowProject.Configuration;
 using MediaFlowProject.Jobs;
 using MediaFlowProject.UI;
+using MediaFlowProject.Processes;
 
 namespace MediaFlowProject;
 
@@ -14,6 +15,14 @@ class Program
         Console.WriteLine("              MEDIAFLOW STARTUP              ");
         Console.WriteLine("=============================================");
         Console.WriteLine();
+        
+        if (!FFmpegChecker.IsAvailable())
+        {
+            Console.WriteLine("FFmpeg is not installed or is not available.");
+            Console.WriteLine("Please install FFmpeg and make sure it is in PATH.");
+            return;
+        }
+
 
         int workerCount = ReadWorkerCount();
 
@@ -47,7 +56,7 @@ class Program
             // Enter → use default
             if (string.IsNullOrWhiteSpace(input))
             {
-                return 5;
+                return AppSettings.MaxWorkerCount;
             }
 
             // Not a number
@@ -58,9 +67,13 @@ class Program
             }
 
             // Outside allowed range
-            if (workerCount < 1 || workerCount > 5)
+            if (workerCount < AppSettings.MinWorkerCount ||
+                workerCount > AppSettings.MaxWorkerCount)
             {
-                Console.WriteLine("Please enter a number from 1 to 5.");
+                Console.WriteLine(
+                    $"Please enter a number from {AppSettings.MinWorkerCount} to {AppSettings.MaxWorkerCount}."
+                );
+
                 continue;
             }
 
