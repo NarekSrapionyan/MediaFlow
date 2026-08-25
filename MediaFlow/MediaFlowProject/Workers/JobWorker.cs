@@ -1,6 +1,9 @@
 ﻿using System.Collections.Concurrent;
+using System.Diagnostics;
 using System.Linq.Expressions;
 using MediaFlowProject.Models;
+using MediaFlowProject.Processes;
+using MediaFlowProject.Processing;
 
 namespace MediaFlowProject.Workers;
 
@@ -39,11 +42,12 @@ public class JobWorker
         try
         {
             job.UpdateStatus(JobStatus.Running);
-            //TODO: 
-            Thread.Sleep(3000); 
-            job.UpdateProgress(100);
+
+            var processor = MediaProcessorResolver.Resolve(job.OperationType);
+            string arguments = processor.GetFfmpegArguments(job);
                 
-            job.UpdateStatus(JobStatus.Completed);
+            var runner = new FfmpegProcessRunner();
+            runner.Run(job, arguments, _cancellationToken);
         }
         catch (Exception ex)
         {
