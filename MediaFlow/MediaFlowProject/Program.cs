@@ -15,7 +15,7 @@ class Program
         Console.WriteLine("              MEDIAFLOW STARTUP              ");
         Console.WriteLine("=============================================");
         Console.WriteLine();
-        
+
         if (!FFmpegChecker.IsAvailable())
         {
             Console.WriteLine("FFmpeg is not installed or is not available.");
@@ -30,18 +30,39 @@ class Program
         Console.WriteLine();
 
         var jobManager = new JobManager(workerCount);
+        bool shuttingDown = false;
+        object shutdownLock = new object();
 
         Console.CancelKeyPress += (sender, e) =>
         {
             // Don't let Ctrl+C immediately terminate the application.
             e.Cancel = true;
 
+            lock (shutdownLock)
+            {
+                if (shuttingDown) return; // ignore repeated Ctrl+C
+                shuttingDown = true;
+            }
+
             Console.WriteLine("\nCtrl+C detected.");
             Console.WriteLine("Stopping all workers and FFmpeg processes...");
 
-            jobManager.StopWorkers();
+            // Run StopWorkers with a timeout so a stuck ffmpeg process
+            // (or a hung Join) can't prevent the app from exiting.
+            var stopTask = Task.Run(() => jobManager.StopWorkers());
+
+            if (!stopTask.Wait(TimeSpan.FromSeconds(5)))
+            {
+                Console.WriteLine("Workers did not stop in time. Forcing exit.");
+            }
+            else
+            {
+                Console.WriteLine("Goodbye!");
+            }
+
+            Environment.Exit(0);
         };
-        
+
         jobManager.StartWorkers();
 
         var menu = new ConsoleMenu(jobManager);
