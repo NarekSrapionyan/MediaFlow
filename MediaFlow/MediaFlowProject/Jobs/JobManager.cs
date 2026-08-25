@@ -1,4 +1,5 @@
 ﻿using System.Collections.Concurrent;
+using MediaFlowProject.Configuration;
 using MediaFlowProject.Models;
 using MediaFlowProject.Workers;
 
@@ -17,8 +18,7 @@ public class JobManager
     
     public JobManager(int workerCount)
     {
-        _workerCount = Math.Clamp(workerCount,1,5);
-        _jobQueue = new BlockingCollection<MediaJob>();
+        _workerCount = Math.Clamp(workerCount, AppSettings.MinWorkerCount, AppSettings.MaxWorkerCount);        _jobQueue = new BlockingCollection<MediaJob>();
         _alljobs = new List<MediaJob>();
         
         _workers = new List<Thread>();

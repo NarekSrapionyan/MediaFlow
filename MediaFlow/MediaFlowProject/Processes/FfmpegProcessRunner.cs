@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using MediaFlowProject.Configuration;
 using MediaFlowProject.Models;
 
 namespace MediaFlowProject.Processes;
@@ -11,7 +12,7 @@ public class FfmpegProcessRunner
 
         var processInfo = new ProcessStartInfo
         {
-            FileName = "ffmpeg",
+            FileName = AppSettings.FFmpegPath,
             Arguments = arguments,
             RedirectStandardError = true,
             UseShellExecute = false,
@@ -52,7 +53,7 @@ public class FfmpegProcessRunner
             }
             else
             {
-                job.UpdateStatus(JobStatus.Failed, $"FFmpeg завершился с ошибкой: {process.ExitCode}");
+                job.UpdateStatus(JobStatus.Failed, $"FFmpeg finished with error: {process.ExitCode}");
             }
         }
     }
