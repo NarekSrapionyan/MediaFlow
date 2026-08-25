@@ -69,74 +69,96 @@ public class ConsoleMenu
         private void AddJobFlow()
         {
             Console.Clear();
-            Console.Write("Input file path: ");
-            string input = Console.ReadLine() ?? string.Empty;
 
-            Console.Write("Output file path: ");
-            string output = Console.ReadLine() ?? string.Empty;
+            string input = ReadExistingFilePath("Input file path: ");
 
-            Console.WriteLine("Select operation (1-Convert, 2-Extract Audio, 3-Compress): ");
-            string typeChoice = Console.ReadLine() ?? "1";
-            
-            MediaOperationType type = typeChoice switch
-            {
-                "2" => MediaOperationType.ExtractAudio,
-                "3" => MediaOperationType.Compress,
-                _ => MediaOperationType.Convert
-            };
+            string output = ReadOutputFilePath("Output file path: ");
+
+            MediaOperationType type = ReadOperationType();
 
             var job = new MediaJob(input, output, "", type);
+
             _jobManager.AddJob(job);
+
+            Console.WriteLine("Job added successfully.");
+            Console.WriteLine("\nPress any key to return...");
+            Console.ReadKey(true);
         }
 
         private void ListJobsFlow()
         {
             Console.Clear();
-            Console.WriteLine("=== All Jobs ===");
-            var jobs = _jobManager.GetJobs();
-            
-            if (!jobs.Any())
+
+            while (true)
             {
-                Console.WriteLine("No jobs in the queue.");
-            }
-            else
-            {
-                foreach (var job in jobs)
+                Console.SetCursorPosition(0, 0);
+
+                Console.WriteLine("=== All Jobs ===");
+                Console.WriteLine();
+
+                var jobs = _jobManager.GetJobs();
+
+                if (!jobs.Any())
                 {
-                    Console.WriteLine($"[{job.Id}] {job.OperationType,-12} | {job.Status,-10} | {job.Progress}%");
+                    Console.WriteLine("No jobs in the queue.");
                 }
+                else
+                {
+                    foreach (var job in jobs)
+                    {
+                        Console.WriteLine(
+                            $"[{job.Id}] {job.OperationType,-12} | {job.Status,-10}"
+                        );
+
+                        Console.WriteLine(
+                            $"    {CreateProgressBar(job.Progress)}"
+                        );
+
+                        Console.WriteLine();
+                    }
+                }
+
+                Console.WriteLine("Press Enter to return...");
+
+                if (Console.KeyAvailable)
+                {
+                    var key = Console.ReadKey(true);
+
+                    if (key.Key == ConsoleKey.Enter)
+                    {
+                        break;
+                    }
+                }
+
+                Thread.Sleep(200);
             }
-            
-            Console.WriteLine("\nPress any key to return...");
-            Console.ReadKey(true);
         }
 
         private void CancelJobFlow()
         {
             Console.Clear();
-            Console.Write("Enter Job ID to cancel: ");
-            
-            if (int.TryParse(Console.ReadLine(), out int id))
+
+            int id = ReadInteger("Enter Job ID to cancel: ");
+
+            var job = _jobManager.GetJobs().FirstOrDefault(j => j.Id == id);
+
+            if (job != null)
             {
-                var job = _jobManager.GetJobs().FirstOrDefault(j => j.Id == id);
-                if (job != null)
+                if (job.Status == JobStatus.Queued || job.Status == JobStatus.Running)
                 {
-                    if (job.Status == JobStatus.Queued || job.Status == JobStatus.Running)
-                    {
-                        job.UpdateStatus(JobStatus.Canceled);
-                        Console.WriteLine($"Job [{id}] has been canceled.");
-                    }
-                    else
-                    {
-                        Console.WriteLine($"Cannot cancel job [{id}]. Current status: {job.Status}");
-                    }
+                    job.UpdateStatus(JobStatus.Canceled);
+                    Console.WriteLine($"Job [{id}] has been canceled.");
                 }
                 else
                 {
-                    Console.WriteLine($"Job [{id}] not found.");
+                    Console.WriteLine($"Cannot cancel job [{id}]. Current status: {job.Status}");
                 }
             }
-            
+            else
+            {
+                Console.WriteLine($"Job [{id}] not found.");
+            }
+
             Console.WriteLine("\nPress any key to return...");
             Console.ReadKey(true);
         }
@@ -177,5 +199,120 @@ public class ConsoleMenu
             Console.WriteLine("All jobs have been processed!");
             Console.WriteLine("\nPress any key to return...");
             Console.ReadKey(true);
+        }
+        
+        
+        // helper function for real time progress bar
+        
+        private string CreateProgressBar(int progress, int width = 20)
+        {
+            progress = Math.Clamp(progress, 0, 100);
+
+            int filled = progress * width / 100;
+
+            return "[" +
+                   new string('█', filled) +
+                   new string('░', width - filled) +
+                   $"] {progress,3}%";
+        }
+        
+        
+        // helper functions for inputs
+        private string ReadExistingFilePath(string prompt)
+        {
+            while (true)
+            {
+                Console.Write(prompt);
+                string path = (Console.ReadLine() ?? string.Empty).Trim();
+
+                if (string.IsNullOrWhiteSpace(path))
+                {
+                    continue;
+                }
+
+                if (File.Exists(path))
+                {
+                    return path;
+                }
+
+                Console.WriteLine("File not found. Please enter a valid file path.");
+            }
+        }
+
+        private string ReadOutputFilePath(string prompt)
+        {
+            while (true)
+            {
+                Console.Write(prompt);
+                string path = (Console.ReadLine() ?? string.Empty).Trim();
+
+                if (string.IsNullOrWhiteSpace(path))
+                {
+                    continue;
+                }
+
+                try
+                {
+                    string? directory = Path.GetDirectoryName(Path.GetFullPath(path));
+
+                    if (!string.IsNullOrEmpty(directory))
+                    {
+                        Directory.CreateDirectory(directory);
+                    }
+
+                    return path;
+                }
+                catch
+                {
+                    Console.WriteLine("Invalid output path. Please enter a valid path.");
+                }
+            }
+        }
+
+        private int ReadInteger(string prompt)
+        {
+            while (true)
+            {
+                Console.Write(prompt);
+
+                string input = (Console.ReadLine() ?? string.Empty).Trim();
+
+                if (int.TryParse(input, out int number))
+                {
+                    return number;
+                }
+
+                Console.WriteLine("Please enter a number.");
+            }
+        }
+
+        private MediaOperationType ReadOperationType()
+        {
+            while (true)
+            {
+                Console.WriteLine("Select operation:");
+                Console.WriteLine("[1] Convert");
+                Console.WriteLine("[2] Extract Audio");
+                Console.WriteLine("[3] Compress");
+                Console.Write("Select > ");
+
+                string choice = (Console.ReadLine() ?? string.Empty).Trim();
+
+                switch (choice)
+                {
+                    case "1":
+                        return MediaOperationType.Convert;
+
+                    case "2":
+                        return MediaOperationType.ExtractAudio;
+
+                    case "3":
+                        return MediaOperationType.Compress;
+
+                    default:
+                        Console.WriteLine("Please select 1, 2, or 3.");
+                        break;
+                }
+            }
         }
     }
